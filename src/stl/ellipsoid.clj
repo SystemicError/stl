@@ -3,11 +3,9 @@
 
 (defn subdivide-spherical-triangle [triangle]
   "Subdivides exactly one triangle into exactly four partitions."
-  (let [dummy (println (str "triangle:" triangle))
-        a (first triangle)
+  (let [a (first triangle)
         b (first (rest triangle))
         c (last triangle)
-        dummy (println (str "\ncorners\n" a "\n" b "\n" c))
         ab (apply stl/unit-vector (map + a b))
         bc (apply stl/unit-vector (map + b c))
         ca (apply stl/unit-vector (map + c a))]
@@ -25,12 +23,12 @@
 
 (defn spherical-tiling [depth]
   "Returns a spherical tiling based on recursive partitions of the regular octahedron."
-  (let [pi [1 0 0]
-        pj [0 1 0]
-        pk [0 0 1]
-        ni [-1 0 0]
-        nj [0 -1 0]
-        nk [0 0 -1]
+  (let [pi [1.0 0.0 0.0]
+        pj [0.0 1.0 0.0]
+        pk [0.0 0.0 1.0]
+        ni [-1.0 0.0 0.0]
+        nj [0.0 -1.0 0.0]
+        nk [0.0 0.0 -1.0]
         triangles [[pi pj pk]
                    [pi pk nj]
                    [pi nj nk]
@@ -41,9 +39,33 @@
                    [ni pj nk]]]
     (subdivide-spherical-tiles depth triangles)))
 
+(defn ellipsoid-radius [v a b c]
+  "Takes in a vector, scales it to lie on ellipsoid"
+  (let [x (first v)
+        y (nth v 1)
+        z (last v)
+        t (Math/pow (+ (/ (* x x) (* a a))
+                       (/ (* y y) (* b b))
+                       (/ (* z z) (* c c))) -0.5)]
+    (map #(* t %) v)))
 
-(defn -main
-  "Writes the specified stl file."
-  [& args]
-  (stl/write-stl "ellipsoid.stl" (spherical-tiling 2))
-  )
+(defn get-axes [focus slr]
+  "Calculates the semimajor/minor axes bases on focus and semilatus rectum."
+  (let [a (/ (+ slr (Math/sqrt (+ (* slr slr) (* 4 focus focus)))) 2.0)
+        b (Math/sqrt (- (* a a) (* focus focus)))]
+    [a b]))
+
+(defn ellipsoid [a b c depth]
+  "Creates an ellipsoid with specified semi-minor/major/medi axes."
+  (let [triangles (spherical-tiling depth)
+        remapper (fn [tri] (map #(ellipsoid-radius % a b c) tri))]
+    (map remapper triangles)))
+
+(defn write-elliptical-reflector [focus slr depth]
+  "Writes an ellipsoid stl file."
+  (let [axes (get-axes focus slr)
+        a (first axes)
+        b (last axes)
+        triangles (ellipsoid b b a depth)
+        triangles (filter #(< focus (apply max (map last %))) triangles)]
+    (stl/write-stl "elliptical_reflector.stl" triangles)))
