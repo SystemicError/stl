@@ -14,11 +14,11 @@
           x1 (first (nth image 1))
           y1 (last (nth image 1))
           x2 (first (last image))
-          y2 (last (last image))]
+          y2 (last (last image))
+          alpha (* 128 (:light-coeff t))]
       (q/with-translation [(/ (q/width) 2.0) (/ (q/height) 2.0)]
-        (q/scale 2.0)
-        (q/triangle x0 y0 x1 y1 x2 y2)
-        (q/scale 0.5))
+        (q/fill 255 255 255 alpha)
+        (q/triangle x0 y0 x1 y1 x2 y2))
       (recur (rest triangles)))))
 
 (defn draw-state [state]
@@ -26,9 +26,8 @@
   (let [path (:path state)
         triangles (:triangles state)]
     (q/background 0)
-    (q/fill 255 255 255 10)
     (draw-triangles triangles)
-    ;(q/save path)
+    ;(q/save (str path (:time state) ".png"))
     ))
 
 (defn setup []
@@ -37,14 +36,14 @@
   )
 
 (defn update-state [state]
-  (let [paraboloid (para/paraboloid 40 2)
-        offset (* 40.0 (Math/sin (:time state)))
+  (let [paraboloid (para/paraboloid 80 3);(int (Math/floor (state :time))))
+        offset (* 80.0 (Math/sin (/ (:time state) 100.0)))
         point-shifter (fn [p] [(first p) (nth p 1) (+ (last p) offset)])
         tri-shifter (fn [tri] (map point-shifter tri))
         paraboloid (map tri-shifter paraboloid)
         ]
-    {:time (+ 0.01 (:time state))
-     :path "reflection.png"
+    {:time (+ 1 (:time state))
+     :path "reflection"
      :triangles (map refl/reflected-ray paraboloid)}
     ))
 
