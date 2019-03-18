@@ -37,14 +37,20 @@
   )
 
 (defn update-state [state]
-  {:time (+ 1 (:time state))
-   :path "reflection.png"
-   :triangles (map refl/reflected-ray (para/paraboloid 40 2))}
-  )
+  (let [paraboloid (para/paraboloid 40 2)
+        offset (* 40.0 (Math/sin (:time state)))
+        point-shifter (fn [p] [(first p) (nth p 1) (+ (last p) offset)])
+        tri-shifter (fn [tri] (map point-shifter tri))
+        paraboloid (map tri-shifter paraboloid)
+        ]
+    {:time (+ 0.01 (:time state))
+     :path "reflection.png"
+     :triangles (map refl/reflected-ray paraboloid)}
+    ))
 
 (q/defsketch reflection
   :setup setup
   :update update-state
-  :size [768 768]
+  :size [1024 1024]
   :draw draw-state
   :middleware [m/fun-mode])
