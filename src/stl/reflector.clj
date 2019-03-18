@@ -42,8 +42,8 @@
         beam [beam-x beam-y beam-z]
         image (map #(xy-intersection beam %) triangle)
         light-coeff beam-z
-        dummy (println (str "nx ny nz" nx ", " ny ", " nz "\n"
-                            "bx by bz" beam-x ", " beam-y ", " beam-z "\n"))
+        ;dummy (println (str "nx ny nz" nx ", " ny ", " nz "\n"
+        ;                    "bx by bz" beam-x ", " beam-y ", " beam-z "\n"))
                          ]
     {:image image :light-coeff light-coeff}))
 
