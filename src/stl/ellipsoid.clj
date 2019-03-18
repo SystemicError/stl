@@ -23,12 +23,3 @@
   (let [triangles (sph/spherical-tiling depth)
         remapper (fn [tri] (map #(ellipsoid-radius % a b c) tri))]
     (map remapper triangles)))
-
-(defn write-elliptical-reflector [focus slr depth]
-  "Writes an ellipsoid stl file."
-  (let [axes (get-axes focus slr)
-        a (first axes)
-        b (last axes)
-        triangles (ellipsoid b b a depth)
-        triangles (filter #(< focus (apply max (map last %))) triangles)]
-    (stl/write-stl "elliptical_reflector.stl" triangles)))
