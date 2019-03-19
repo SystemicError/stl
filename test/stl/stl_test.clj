@@ -41,6 +41,26 @@
     (is (= (unit-normal [[1.0 1.0 1.0] [2.0 1.0 1.0] [1.0 3.0 1.0]]) [0.0 0.0 1.0]))
     ))
 
+(deftest half-plane-crossing-test
+  (testing "Half plane crossing fail."
+    (is (= (half-plane-crossing [0.0 1.0] [1.0 -1.0] [0.0 1.0]) [0.5 0.0]))
+    (is (= (half-plane-crossing [0.0 1.0 1.0] [1.0 -1.0 0.0] [0.0 1.0 0.0]) [0.5 0.0 0.5]))
+    (is (= (half-plane-crossing [0.0 1.0 1.0] [1.0 1.0 0.0] [0.0 1.0 0.0]) nil))
+    ))
+
+(deftest clip-triangle-to-half-plane-test
+  (testing "Clip triangle to half plane fail."
+    (is (= (clip-triangle-to-half-plane [[0.0 0.0] [1.0 1.0] [1.0 -1.0]] [-1.0 0.0])
+           []))
+    (is (= (clip-triangle-to-half-plane [[0.0 0.0] [1.0 1.0] [1.0 -1.0]] [1.0 0.0])
+           [[[0.0 0.0] [1.0 1.0] [1.0 -1.0]]]))
+    (is (= (clip-triangle-to-half-plane [[0.0 0.0] [1.0 1.0] [1.0 -1.0]] [0.0 1.0])
+           [[[0.0 0.0] [1.0 1.0] [1.0 0.0]]]))
+    (is (= (clip-triangle-to-half-plane [[0.0 -1.0] [1.0 1.0] [0.0 1.0]] [0.0 1.0])
+           [[[0.5 0.0] [1.0 1.0] [0.0 1.0]]
+            [[0.0 1.0] [0.0 0.0] [0.5 0.0]]]))
+    ))
+
 (deftest facet-test
   (testing "Facet fail."
     (is (= (facet [[0.0 0.0 0.0] [1.0 0.0 0.0] [0.0 1.0 0.0]])

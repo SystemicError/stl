@@ -28,7 +28,7 @@
    (- (* ax by) (* bx ay))]))
 
 (defn dot-product
-  "Cross product."
+  "Dot product."
   [a b]
   (apply + (map * a b)))
 
@@ -56,10 +56,47 @@
     (apply unit-vector (cross-product a b))))
 
 
+(defn half-plane-crossing [p1 p2 h-plane]
+  "Finds the intersection between the line segment p1 to p2 and the half-plane normal to h-plane.  Returns nil if none exists."
+  ;; ((p2 - p1)t + p1)*h-plane = 0
+  ;; ((p2 - p1)*h-plane)t + p1*h-plane = 0
+  ;; where 0 < t < 1
+  (let [u (map - p2 p1)
+        u-dot-h (dot-product u h-plane)
+        p1-dot-h (dot-product p1 h-plane)]
+    (if (= 0.0 u-dot-h)
+      nil
+      (let [t (/ p1-dot-h u-dot-h -1.0)]
+        (if (or (<= t 0) (>= t 1))
+          nil
+          (map + p1 (map #(* t %) u)))))))
+
+
+(defn clip-triangle-to-half-plane [triangle h-plane]
+  "Clips a triangle in arbitrary dimensions to a half-plane running through origin, specified by normal vector.  Returns a list of triangles representing clipped polygon.  Preserves orientation."
+  (let [a (first triangle)
+        b (nth triangle 1)
+        c (last triangle)
+        ab (half-plane-crossing a b h-plane)
+        bc (half-plane-crossing b c h-plane)
+        ca (half-plane-crossing c a h-plane)
+        vertices (filter #(and (not= nil %)
+                               (<= 0 (dot-product % h-plane))) [a ab b bc c ca])]
+    (case (count vertices)
+      0 []
+      1 []
+      2 []
+      3 [vertices]
+      4 (let [p (first vertices)
+              q (nth vertices 1)
+              r (nth vertices 2)
+              s (last vertices)]
+          [[p q r] [r s p]])
+      (println "Error!"))))
+
 ; possible additions
 
 ; binary operations on 2d/3d triangles
-;   clipping
 ; transformations
 ;   rotation, translation
 ;   arbitrary matrix operations

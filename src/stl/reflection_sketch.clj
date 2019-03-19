@@ -28,6 +28,7 @@
     (q/background 0)
     (draw-triangles triangles)
     ;(q/save (str path (:time state) ".png"))
+    (q/save (str path ".png"))
     ))
 
 (defn setup []
@@ -36,8 +37,9 @@
   )
 
 (defn update-state [state]
-  (let [paraboloid (para/paraboloid 80 3);(int (Math/floor (state :time))))
-        offset (* 80.0 (Math/sin (/ (:time state) 100.0)))
+  (let [paraboloid (para/paraboloid 80 2);(int (Math/floor (state :time))))
+        ;offset (* 80.0 (Math/sin (/ (:time state) 100.0)))
+        offset 0
         point-shifter (fn [p] [(first p) (nth p 1) (+ (last p) offset)])
         tri-shifter (fn [tri] (map point-shifter tri))
         paraboloid (map tri-shifter paraboloid)
