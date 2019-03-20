@@ -48,6 +48,12 @@
     (is (= (half-plane-crossing [0.0 1.0 1.0] [1.0 1.0 0.0] [0.0 1.0 0.0]) nil))
     ))
 
+(deftest translate-triangle-test
+  (testing "Translate triangle fail."
+    (is (= (translate-triangle [[1.0 2.0] [3.0 4.0] [5.0 6.0]] [7.0 8.0])
+           [[8.0 10.0] [10.0 12.0] [12.0 14.0]]))
+    ))
+
 (deftest clip-triangle-to-half-plane-test
   (testing "Clip triangle to half plane fail."
     (is (= (clip-triangle-to-half-plane [[0.0 0.0] [1.0 1.0] [1.0 -1.0]] [-1.0 0.0])
@@ -59,6 +65,9 @@
     (is (= (clip-triangle-to-half-plane [[0.0 -1.0] [1.0 1.0] [0.0 1.0]] [0.0 1.0])
            [[[0.5 0.0] [1.0 1.0] [0.0 1.0]]
             [[0.0 1.0] [0.0 0.0] [0.5 0.0]]]))
+    (is (= (clip-triangle-to-half-plane [[0.0 0.0] [1.0 2.0] [0.0 2.0]] [0.0 1.0] [0.0 1.0])
+           [[[0.5 1.0] [1.0 2.0] [0.0 2.0]]
+            [[0.0 2.0] [0.0 1.0] [0.5 1.0]]]))
     ))
 
 (deftest facet-test

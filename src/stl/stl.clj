@@ -71,34 +71,56 @@
           nil
           (map + p1 (map #(* t %) u)))))))
 
+(defn translate-triangle [tri v]
+  "Translates triangle by vector v."
+  (map #(map + % v) tri))
 
-(defn clip-triangle-to-half-plane [triangle h-plane]
-  "Clips a triangle in arbitrary dimensions to a half-plane running through origin, specified by normal vector.  Returns a list of triangles representing clipped polygon.  Preserves orientation."
-  (let [a (first triangle)
-        b (nth triangle 1)
-        c (last triangle)
-        ab (half-plane-crossing a b h-plane)
-        bc (half-plane-crossing b c h-plane)
-        ca (half-plane-crossing c a h-plane)
-        vertices (filter #(and (not= nil %)
-                               (<= 0 (dot-product % h-plane))) [a ab b bc c ca])]
-    (case (count vertices)
-      0 []
-      1 []
-      2 []
-      3 [vertices]
-      4 (let [p (first vertices)
-              q (nth vertices 1)
-              r (nth vertices 2)
-              s (last vertices)]
-          [[p q r] [r s p]])
-      (println "Error!"))))
+(defn clip-triangle-to-half-plane
+  "Clips a triangle in arbitrary dimensions to a half-plane running through origin, specified by normal vector.  Returns a list of triangles representing clipped polygon.  Preserves orientation.  May optionally include offset of half-plane as third argument."
+  ([triangle h-plane offset]
+   (let [translated (translate-triangle triangle (map #(* -1.0 %) offset))
+         clipped (clip-triangle-to-half-plane translated h-plane)]
+     (map #(translate-triangle % offset) clipped)))
+  ([triangle h-plane]
+   (let [a (first triangle)
+         b (nth triangle 1)
+         c (last triangle)
+         ab (half-plane-crossing a b h-plane)
+         bc (half-plane-crossing b c h-plane)
+         ca (half-plane-crossing c a h-plane)
+         vertices (filter #(and (not= nil %)
+                                (<= 0 (dot-product % h-plane))) [a ab b bc c ca])]
+     (case (count vertices)
+       0 []
+       1 []
+       2 []
+       3 [vertices]
+       4 (let [p (first vertices)
+               q (nth vertices 1)
+               r (nth vertices 2)
+               s (last vertices)]
+           [[p q r] [r s p]])
+       (println "Error!")))))
+
+(defn clip-triangle-to-2d-triangle [triangle clipper]
+  "Clips triangle to within clipper, returns collection of triangles."
+  (let [a (first clipper)
+        b (nth clipper 1)
+        c (last clipper)
+        ab (map - b a)
+        bc (map - c b)
+        ca (map - a c)
+        counter-90 (fn [v] [(* -1.0 (last v)) (first v)])
+        p (first triangle)
+        q (nth triangle 1)
+        r (last triangle)
+]))
 
 ; possible additions
 
 ; binary operations on 2d/3d triangles
 ; transformations
-;   rotation, translation
+;   rotation
 ;   arbitrary matrix operations
 ;   projection
 ; triangulation/avoiding sliver triangles
