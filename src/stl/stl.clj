@@ -102,7 +102,7 @@
            [[p q r] [r s p]])
        (println "Error!")))))
 
-(defn clip-triangle-to-2d-triangle [triangle clipper]
+(defn clip-triangles-to-2d-triangle [triangles clipper]
   "Clips triangle to within clipper, returns collection of triangles."
   (let [a (first clipper)
         b (nth clipper 1)
@@ -111,10 +111,18 @@
         bc (map - c b)
         ca (map - a c)
         counter-90 (fn [v] [(* -1.0 (last v)) (first v)])
-        p (first triangle)
-        q (nth triangle 1)
-        r (last triangle)
-]))
+        clipped-once (apply concat (for [t triangles]
+                                     (clip-triangle-to-half-plane t
+                                                                  (counter-90 ab)
+                                                                  a)))
+        clipped-twice (apply concat (for [t clipped-once]
+                                      (clip-triangle-to-half-plane t
+                                                                   (counter-90 bc)
+                                                                   b)))]
+    (apply concat (for [t clipped-twice]
+                    (clip-triangle-to-half-plane t
+                                                 (counter-90 ca)
+                                                 c)))))
 
 ; possible additions
 

@@ -70,6 +70,12 @@
             [[0.0 2.0] [0.0 1.0] [0.5 1.0]]]))
     ))
 
+(deftest clip-triangles-to-2d-triangle-test
+  (testing "Clip triangles to 2d triangle fail."
+    (is (= (clip-triangles-to-2d-triangle [[[-1.0 1.0] [1.0 -1.0] [1.0 1.0]]] [[0.0 0.0] [2.0 0.0] [0.0 2.0]])
+           [[[0.0 0.0] [1.0 0.0] [0.0 0.5]] [[1.0 0.0] [1.0 1.0] [0.0 1.0]] [[0.0 1.0] [0.0 0.5] [1.0 0.0]]]))
+    ))
+
 (deftest facet-test
   (testing "Facet fail."
     (is (= (facet [[0.0 0.0 0.0] [1.0 0.0 0.0] [0.0 1.0 0.0]])
