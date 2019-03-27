@@ -67,7 +67,7 @@
     (if (= 0.0 u-dot-h)
       nil
       (let [t (/ p1-dot-h u-dot-h -1.0)]
-        (if (or (<= t 0) (>= t 1))
+        (if (or (<= t 0.0) (>= t 1.0))
           nil
           (map + p1 (map #(* t %) u)))))))
 
