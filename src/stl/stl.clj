@@ -124,6 +124,19 @@
                                                  (counter-90 ca)
                                                  c)))))
 
+(defn intersect-2d-triangles [triangles]
+  "Returns a collection of triangles representing planar intersection."
+  (let [t (first triangles)
+        r (rest triangles)]
+    (if (empty? triangles)
+      []
+      (if (empty? r)
+        [t]
+        (let [clipped (clip-triangles-to-2d-triangle r t)]
+          (if (some #{[]} clipped)
+            []
+            (recur clipped)))))))
+
 ; possible additions
 
 ; binary operations on 2d/3d triangles
