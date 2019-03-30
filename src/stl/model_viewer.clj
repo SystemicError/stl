@@ -19,7 +19,10 @@
 (defn project-point [point camera]
   "Projects a 3d point to 2d."
   (let [translated (map + point (:translation camera))
-        rotated (for [row (:rotation camera)] (map * row translated))]
+        rotated (for [row (:rotation camera)] (apply + (map * row translated)))
+        dummy (println (str "point" (into [] point)
+                            "\ntr" (into [] translated)
+                            "\nrot" (into [] rotated)))]
     (if (< 0.0 (last rotated))
       (map #(/ % (last rotated)) (take 2 rotated)))))
 
@@ -43,7 +46,7 @@
   )
 
 (defn update-state [state]
-  (assoc state :z (+ 0.1 (:z state)))
+  (assoc state :translation (map + [0.0 0.0 0.1] (:translation state)))
   )
 
 (q/defsketch reflection
