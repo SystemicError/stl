@@ -37,7 +37,8 @@
   "Draws the reflections onto xy plane of triangles receiving light from z-infinitiy."
   (let [triangles (:triangles state)
         projected (filter #(not= nil %) (project-triangles triangles state))
-        z-buffered (sort #(< (:depth (first %1)) (:depth (first %2))) projected)]
+        avg-depth (fn [t] (/ (apply + (map :depth t)) 3.0))
+        z-buffered (sort #(< (avg-depth %1) (avg-depth %2)) projected)]
     (q/background 0)
     ;(println (str (into [] z-buffered)))
     (draw-2d-triangles (for [t z-buffered] (for [p t] (:point p))))
@@ -45,9 +46,20 @@
 
 (defn setup []
   {:rotation [[1.0 0.0 0.0] [0.0 1.0 0.0] [0.0 0.0 1.0]]
-   :translation [0.0 1.0 1.0]
+   :translation [0.0 1.0 200.0]
    :focal-length 100.0
-   :triangles (for [i (range 16)] (for [j (range 3)] [(- (* (rand) 1000) 500) (- (* (rand) 1000) 500) (* (rand) 1000)]))
+   :triangles (let [a [0.0 0.0 0.0]
+                    b [100.0 0.0 0.0]
+                    c [0.0 100.0 0.0]
+                    d [100.0 100.0 0.0]
+                    e [0.0 0.0 100.0]
+                    f [100.0 0.0 100.0]
+                    g [0.0 100.0 100.0]
+                    h [100.0 100.0 100.0]]
+                [[a b d] [a d c]
+                 [e f h] [e h g]
+                 [a b h] [a h e]
+                 [a c g] [a g e]])
    :time 0.0
    }
   )
