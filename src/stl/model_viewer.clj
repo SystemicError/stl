@@ -11,8 +11,8 @@
           x1 (first (nth t 1))
           y1 (nth (nth t 1) 1)
           x2 (first (last t))
-          y2 (nth (last t) 1)
-	  dummy (println (str "\nt:" (into [] t)))]
+          y2 (nth (last t) 1)]
+	  ;dummy (println (str "\nt:" (into [] t)))]
       (q/with-translation [(/ (q/width) 2.0) (/ (q/height) 2.0)]
 	(q/fill 255 255 255)
         (q/triangle x0 y0 x1 y1 x2 y2))
@@ -26,7 +26,7 @@
       ;                      "\ntr" (into [] translated)
       ;                      "\nrot" (into [] rotated)))]
     (if (< 0.0 (last rotated))
-      {:point (map #(/ (* (camera :focal-length) %) (last rotated)) (take 2 rotated))
+      {:point (map #(/ (* (camera :focal-length) %) (+ (last rotated) (camera :focal-length))) (take 2 rotated))
        :depth (last rotated)})))
 
 (defn project-triangles [triangles camera]
@@ -47,7 +47,7 @@
 (defn setup []
   {:rotation [[1.0 0.0 0.0] [0.0 1.0 0.0] [0.0 0.0 1.0]]
    :translation [0.0 1.0 200.0]
-   :focal-length 100.0
+   :focal-length 200.0
    :triangles (let [a [0.0 0.0 0.0]
                     b [100.0 0.0 0.0]
                     c [0.0 100.0 0.0]
@@ -58,7 +58,7 @@
                     h [100.0 100.0 100.0]]
                 [[a b d] [a d c]
                  [e f h] [e h g]
-                 [a b h] [a h e]
+                 [a b f] [a f e]
                  [a c g] [a g e]])
    :time 0.0
    }
