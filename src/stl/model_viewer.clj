@@ -1,5 +1,6 @@
 (ns stl.model-viewer
   (:require [stl.stl :as stl]
+            [stl.ellipsoid :as ell]
             [quil.core :as q]
             [quil.middleware :as m]))
 
@@ -36,37 +37,34 @@
 (defn draw-state [state]
   "Draws the reflections onto xy plane of triangles receiving light from z-infinitiy."
   (let [triangles (:triangles state)
-        projected (filter #(not= nil %) (project-triangles triangles state))
+        projected (filter #(and (not= nil %)
+                                (= (count %) 3)
+                                (:depth (first %))
+                                (:depth (nth % 1))
+                                (:depth (last %)))
+                          (project-triangles triangles state))
         avg-depth (fn [t] (/ (apply + (map :depth t)) 3.0))
         z-buffered (sort #(< (avg-depth %1) (avg-depth %2)) projected)]
     (q/background 0)
-    ;(println (str (into [] z-buffered)))
     (draw-2d-triangles (for [t z-buffered] (for [p t] (:point p))))
     ))
 
 (defn setup []
   {:rotation [[1.0 0.0 0.0] [0.0 1.0 0.0] [0.0 0.0 1.0]]
    :translation [0.0 1.0 200.0]
-   :focal-length 200.0
-   :triangles (let [a [0.0 0.0 0.0]
-                    b [100.0 0.0 0.0]
-                    c [0.0 100.0 0.0]
-                    d [100.0 100.0 0.0]
-                    e [0.0 0.0 100.0]
-                    f [100.0 0.0 100.0]
-                    g [0.0 100.0 100.0]
-                    h [100.0 100.0 100.0]]
-                [[a b d] [a d c]
-                 [e f h] [e h g]
-                 [a b f] [a f e]
-                 [a c g] [a g e]])
+   :focal-length 1024.0
+   :triangles (ell/ellipsoid 80 70 50 2)
    :time 0.0
    }
   )
 
 (defn update-state [state]
-  (assoc state :translation (map + [(Math/cos (:time state)) (Math/sin (:time state)) 0.0] (:translation state))
-               :time (+ (:time state) 0.01))
+  (assoc state :translation [0.0 (* 200.0 (Math/sin (:time state))) (* 200.0 (Math/cos (:time state)))]
+               :time (+ (:time state) 0.01)
+               ;:rotation [[1.0 0.0 0.0]
+               ;           [0.0 1.0 0.0]
+               ;           [0.0 0.0 1.0]]
+               )
   )
 
 (q/defsketch reflection
