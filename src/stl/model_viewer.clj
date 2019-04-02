@@ -1,6 +1,6 @@
 (ns stl.model-viewer
   (:require [stl.stl :as stl]
-            [stl.ellipsoid :as ell]
+            [stl.paraboloid :as para]
             [quil.core :as q]
             [quil.middleware :as m]))
 
@@ -26,9 +26,8 @@
       ;  dummy (println (str "point" (into [] point)
       ;                      "\ntr" (into [] translated)
       ;                      "\nrot" (into [] rotated)))]
-    (if (< 0.0 (last rotated))
-      {:point (map #(/ (* (camera :focal-length) %) (+ (last rotated) (camera :focal-length))) (take 2 rotated))
-       :depth (last rotated)})))
+    {:point (map #(/ (* (camera :focal-length) %) (+ (last rotated) (camera :focal-length))) (take 2 rotated))
+     :depth (last rotated)}))
 
 (defn project-triangles [triangles camera]
   "Takes in an array of 3d triangles, returns array of 2d triangles."
@@ -53,7 +52,7 @@
   {:rotation [[1.0 0.0 0.0] [0.0 1.0 0.0] [0.0 0.0 1.0]]
    :translation [0.0 1.0 200.0]
    :focal-length 1024.0
-   :triangles (ell/ellipsoid 80 70 50 2)
+   :triangles (concat (para/paraboloid 150 2))
    :time 0.0
    }
   )
@@ -61,9 +60,9 @@
 (defn update-state [state]
   (assoc state :translation [0.0 (* 200.0 (Math/sin (:time state))) (* 200.0 (Math/cos (:time state)))]
                :time (+ (:time state) 0.01)
-               ;:rotation [[1.0 0.0 0.0]
-               ;           [0.0 1.0 0.0]
-               ;           [0.0 0.0 1.0]]
+               :rotation [[1.0 0.0 0.0]
+                          [0.0 (Math/cos (:time state)) (* -1.0 (Math/sin (:time state)))]
+                          [0.0 (Math/sin (:time state)) (Math/cos (:time state))]]
                )
   )
 
