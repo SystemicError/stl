@@ -1,6 +1,6 @@
 (ns stl.model-viewer
   (:require [stl.stl :as stl]
-            [stl.paraboloid :as para]
+            [clojure.edn :as edn]
             [quil.core :as q]
             [quil.middleware :as m]))
 
@@ -52,7 +52,7 @@
   {:rotation [[1.0 0.0 0.0] [0.0 1.0 0.0] [0.0 0.0 1.0]]
    :translation [0.0 1.0 200.0]
    :focal-length 1024.0
-   :triangles (concat (para/paraboloid 150 2))
+   :triangles (edn/read-string (slurp "model.triangles"))
    :time 0.0
    }
   )
