@@ -32,7 +32,7 @@
 
 (defn normal-to-color [normal]
   "Converts a unit normal vector to a color."
-  (map #(* 255 (max % 0.0)) normal))
+  (map #(+ (* % 100.0) 155.0) normal))
 
 (defn project-triangles [triangles camera]
   "Takes in an array of 3d triangles, returns array of 2d triangles."
@@ -65,7 +65,7 @@
 
 (defn update-state [state]
   (assoc state :translation [0.0 (* 200.0 (Math/sin (:time state))) (* 200.0 (Math/cos (:time state)))]
-               :time (+ (:time state) 0.01)
+               :time (+ (:time state) 0.02)
                :rotation [[1.0 0.0 0.0]
                           [0.0 (Math/cos (:time state)) (* -1.0 (Math/sin (:time state)))]
                           [0.0 (Math/sin (:time state)) (Math/cos (:time state))]]
