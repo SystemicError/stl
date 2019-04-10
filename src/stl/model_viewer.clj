@@ -6,7 +6,8 @@
 
 (defn draw-2d-triangles [triangles]
   (if (> (count triangles) 0)
-    (let [t (first triangles)
+    (let [tri (first triangles)
+          t (:points tri)
           x0 (first (first t))
           y0 (nth (first t) 1)
           x1 (first (nth t 1))
@@ -15,7 +16,7 @@
           y2 (nth (last t) 1)]
 	  ;dummy (println (str "\nt:" (into [] t)))]
       (q/with-translation [(/ (q/width) 2.0) (/ (q/height) 2.0)]
-	(q/fill 255 255 255)
+	(apply q/fill (:color tri))
         (q/triangle x0 y0 x1 y1 x2 y2))
       (recur (rest triangles)))))
 
@@ -29,23 +30,28 @@
     {:point (map #(/ (* (camera :focal-length) %) (+ (last rotated) (camera :focal-length))) (take 2 rotated))
      :depth (last rotated)}))
 
+(defn normal-to-color [normal]
+  "Converts a unit normal vector to a color."
+  (map #(* 255 (max % 0.0)) normal))
+
 (defn project-triangles [triangles camera]
   "Takes in an array of 3d triangles, returns array of 2d triangles."
-  (for [t triangles] (for [vertex t] (project-point vertex camera))))
+  (for [t triangles] {:points (for [vertex t] (project-point vertex camera))
+                      :color (normal-to-color (stl/unit-normal t)) }))
 
 (defn draw-state [state]
   "Draws the reflections onto xy plane of triangles receiving light from z-infinitiy."
   (let [triangles (:triangles state)
         projected (filter #(and (not= nil %)
-                                (= (count %) 3)
-                                (:depth (first %))
-                                (:depth (nth % 1))
-                                (:depth (last %)))
+                                (not= nil (first (:points %)))
+                                (not= nil (nth (:points %) 1))
+                                (not= nil (last (:points %))))
                           (project-triangles triangles state))
         avg-depth (fn [t] (/ (apply + (map :depth t)) 3.0))
-        z-buffered (sort #(< (avg-depth %1) (avg-depth %2)) projected)]
+        z-buffered (sort #(< (avg-depth (:points %1)) (avg-depth (:points %2))) projected)]
     (q/background 0)
-    (draw-2d-triangles (for [t z-buffered] (for [p t] (:point p))))
+    (draw-2d-triangles (for [t z-buffered] {:points (for [p (:points t)] (:point p))
+                                            :color (:color t)}))
     ))
 
 (defn setup []
