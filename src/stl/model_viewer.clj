@@ -56,21 +56,30 @@
 
 (defn setup []
   {:rotation [[1.0 0.0 0.0] [0.0 1.0 0.0] [0.0 0.0 1.0]]
-   :translation [0.0 1.0 200.0]
-   :focal-length 1024.0
+   :translation [0.0 0.0 0.0]
+   :focal-length 2048.0
    :triangles (edn/read-string (slurp "model.triangles"))
-   :time 0.0
    }
   )
 
 (defn update-state [state]
-  (assoc state :translation [0.0 (* 200.0 (Math/sin (:time state))) (* 200.0 (Math/cos (:time state)))]
-               :time (+ (:time state) 0.02)
-               :rotation [[1.0 0.0 0.0]
-                          [0.0 (Math/cos (:time state)) (* -1.0 (Math/sin (:time state)))]
-                          [0.0 (Math/sin (:time state)) (Math/cos (:time state))]]
-               )
-  )
+  (let [pressed (q/key-as-keyword)
+        dangle 0.02
+        c (Math/cos dangle)
+        s (Math/sin dangle)
+        rot (:rotation state)
+        drot (case pressed
+               :j [[1.0 0.0 0.0] [0.0 c (* -1.0 s)] [0.0 s c]]
+               :k [[1.0 0.0 0.0] [0.0 c s] [0.0 (* -1.0 s) c]]
+               :h [[c 0.0 (* -1.0 s)] [0.0 1.0 0.0] [s 0.0 c]]
+               :l [[c 0.0 s] [0.0 1.0 0.0] [(* -1.0 s) 0.0 c]]
+               [[1.0 0.0 0.0]
+                [0.0 1.0 0.0]
+                [0.0 0.0 1.0]])]
+    (assoc state :rotation (for [row (range 3)]
+                             (for [col (range 3)]
+                               (apply + (map * (nth drot row)
+                                               (map #(nth % col) rot))))))))
 
 (q/defsketch reflection
   :setup setup
