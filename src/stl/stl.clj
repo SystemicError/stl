@@ -1,4 +1,5 @@
-(ns stl.stl)
+(ns stl.stl
+  (:require [clojure.string :as str]))
 
 (def pi 3.14159265358979)
 
@@ -188,3 +189,19 @@
                     (apply str facets)
                     footer)))
   )
+
+(defn read-ascii-stl
+  "Reads an ASCII stl file."
+  ;TODO ensure normal is in correct direction.
+  [path]
+  (let [contents (slurp path)
+        lines (str/split contents #"[\n\r]")
+        vertex-lines (filter #(re-find #"vertex" %) lines)
+        line-to-vertices (fn [line] 
+                           (map read-string
+                             (filter #(and (not= "" %) (not= "vertex" %))
+                                     (str/split line #" "))))
+        vertices (map line-to-vertices vertex-lines)
+        triangles (into [] vertices)
+        ]
+    triangles))
