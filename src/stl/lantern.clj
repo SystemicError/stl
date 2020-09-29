@@ -4,7 +4,8 @@
 (defn profile-r
   "Latitude to cylindrical radius."
   [lat]
-  (* 30.0 (Math/pow (Math/cos lat) (if (< lat 0) 1.0 0.4)))
+  ;(* 30.0 (Math/pow (Math/cos lat) (if (< lat 0) 1.0 0.4))) ; floating lantern
+  (* 50.0 (Math/cos lat)) ; simple oblate spheroid/灯笼
   )
 
 (defn profile-h
