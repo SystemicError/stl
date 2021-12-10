@@ -37,14 +37,14 @@
   "Creates a lantern gore."
   []
   (let [dlat (stl/deg-to-rad 15.0)]
-    (apply concat (for [lat (range (stl/deg-to-rad -65.0)
+    (apply concat (for [lat (range (stl/deg-to-rad -90.0)
                                    (stl/deg-to-rad 90.0)
                                    dlat)]
                     (sphere-panel profile-r
                                   profile-h
                                   lat
                                   dlat
-                                  (stl/deg-to-rad 60.0)))))
+                                  (stl/deg-to-rad 30.0)))))
   )
 
 (defn -main
