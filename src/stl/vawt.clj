@@ -20,13 +20,21 @@
         f (twister b)
         g (twister c)
         h (twister d)
+        mirror (fn [v] (list (* -1 (first v)) (* -1 (nth v 1)) (nth v 2)))
         ]
     (list (list a b f)
           (list b c g)
           (list c d h)
           (list e a f)
           (list f b g)
-          (list g c h))
+          (list g c h)
+          (list a (mirror b) (mirror f))
+          (list (mirror b) (mirror c) (mirror g))
+          (list (mirror c) (mirror d) (mirror h))
+          (list e a (mirror f))
+          (list (mirror f) (mirror b) (mirror g))
+          (list (mirror g) (mirror c) (mirror h))
+          )
   ))
 
 (defn -main
